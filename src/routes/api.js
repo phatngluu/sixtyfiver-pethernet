@@ -11,15 +11,18 @@ const register = (app) => {
     // const oidc = app.locals.oidc;
 
     app.get("/api/testcontract", async (req, res) => {
-        const defaultAccount = web3.eth.defaultAccount;
-        console.log(defaultAccount);
-        const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, PethernetContractAddress)
-        pethernetContract.methods.addVaccineDose("abcdef").send({from: VaccineDoseAccountAddress})
-        .on('receipt', function(x){
-            console.log(x);
-        });
+        
+    })
 
-        res.json({ success: true, message: defaultAccount})
+    app.get("/api/vaccinedose/all", async (req, res) => {
+        const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
+        pethernetContract.methods.getVaccineDoses().call({
+            from: process.env.VACCINE_DOSE_PROVIDER_ADDRESS,
+            gas: 150000
+        })
+        .then(function(result){
+            res.json({success: true, message: result})
+        });;
     })
 
     app.post("/api/vaccinedose/add", async (req, res) => {
@@ -40,7 +43,11 @@ const register = (app) => {
                 res.json({success: false, message: err})
             } else {
                 const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-                pethernetContract.methods.addVaccineDose(newVaccineDose.Hash).send({ from: process.env.VACCINE_DOSE_PROVIDER_ADDRESS })
+                pethernetContract.methods.addVaccineDose(newVaccineDose.Hash).send(
+                    { 
+                        from: process.env.VACCINE_DOSE_PROVIDER_ADDRESS,
+                        gas: 150000,
+                    })
                 .on('receipt', function(x){
                     console.log(x);
                 });
