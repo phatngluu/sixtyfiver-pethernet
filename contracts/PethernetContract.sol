@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.5.0;
+pragma experimental ABIEncoderV2;
 
 contract PethernetContract {
     address public ministryOfHealthAddr = msg.sender;
     string[] public vaccineDoses;
+    string[] public medicalUnits;
 
     modifier restricted() {
         require(
@@ -17,7 +19,15 @@ contract PethernetContract {
         vaccineDoses.push(_vaccineDoseHash);
     }
 
-    function getVaccineDose() public view returns(uint _vaccineDoses) {
-        _vaccineDoses = vaccineDoses.length;
+    function addMedicalUnit(string memory _medicalUnitHash) public restricted {
+        medicalUnits.push(_medicalUnitHash);
+    }
+
+    function getVaccineDoses() public view returns(string[] memory _vaccineDoses) {
+        _vaccineDoses = vaccineDoses;
+    }
+
+    function getMedicalUnits() public view returns(string[] memory _medicalUnits) {
+        _medicalUnits = medicalUnits;
     }
 }
