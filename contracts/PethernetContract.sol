@@ -17,6 +17,9 @@ contract PethernetContract {
     // Injector hash => existed?
     mapping (string => bool) injectors;
 
+    /** Event */
+    event MedicalUnitEvent(string _medicalUnitHash, address _medicalUnitAddr);
+
     modifier ministryOfHealthRestricted() {
         require(
             msg.sender == ministryOfHealthAddr,
@@ -34,6 +37,7 @@ contract PethernetContract {
 
     function addMedicalUnit(string memory _medicalUnitHash, address _medicalUnitOriginAddr) public ministryOfHealthRestricted {
         medicalUnits[_medicalUnitHash] = _medicalUnitOriginAddr;
+        emit MedicalUnitEvent(_medicalUnitHash, _medicalUnitOriginAddr);
     }
 
     function addVaccineDose(string memory _vaccineDoseHash) public ministryOfHealthRestricted {
