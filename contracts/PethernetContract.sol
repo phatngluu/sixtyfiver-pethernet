@@ -3,11 +3,21 @@ pragma solidity >=0.5.0;
 pragma experimental ABIEncoderV2;
 
 contract PethernetContract {
+    // Ministry of Health's account address 
     address public ministryOfHealthAddr = msg.sender;
-    string[] public vaccineDoses;
-    string[] public medicalUnits;
+    // Medical Unit hash => Medical Unit account address
+    mapping (string => address) medicalUnits;
+    // Vaccine Dose hash => address of owner (Medical Unit or by default Ministry of Health)
+    mapping (string => address) vaccineDoses;
+    // Certificate hash => Medical Unit address account
+    mapping (string => Certificate) certificates;
 
-    modifier restricted() {
+    // Doctor hash => existed?
+    mapping (string => bool) doctors;
+    // Injector hash => existed?
+    mapping (string => bool) injectors;
+
+    modifier ministryOfHealthRestricted() {
         require(
             msg.sender == ministryOfHealthAddr,
             "This function is restricted to the contract's owner"
@@ -15,19 +25,85 @@ contract PethernetContract {
         _;
     }
 
-    function addVaccineDose(string memory _vaccineDoseHash) public restricted {
-        vaccineDoses.push(_vaccineDoseHash);
+    struct Certificate {
+        address issuer; // Medical unit address
+        string injector;
+        string doctor;
+        string vaccineDose;
     }
 
-    function addMedicalUnit(string memory _medicalUnitHash) public restricted {
-        medicalUnits.push(_medicalUnitHash);
+    function addMedicalUnit(string memory _medicalUnitHash, address _medicalUnitOriginAddr) public ministryOfHealthRestricted {
+        medicalUnits[_medicalUnitHash] = _medicalUnitOriginAddr;
     }
 
-    function getVaccineDoses() public view returns(string[] memory _vaccineDoses) {
-        _vaccineDoses = vaccineDoses;
+    function addVaccineDose(string memory _vaccineDoseHash) public ministryOfHealthRestricted {
+        vaccineDoses[_vaccineDoseHash] = ministryOfHealthAddr;
     }
 
-    function getMedicalUnits() public view returns(string[] memory _medicalUnits) {
-        _medicalUnits = medicalUnits;
+    function distributeVaccineDose(string memory _vaccineDoseHash, string memory _medicalUnitHash) public ministryOfHealthRestricted {
+        require(
+            medicalUnits[_medicalUnitHash] != address(0),
+            "Medical unit is not existed."
+        );
+        vaccineDoses[_vaccineDoseHash] = medicalUnits[_medicalUnitHash];
+    }
+
+    function addDoctor(string memory _doctorHash) public {
+        doctors[_doctorHash] = true;
+    }
+
+    function addInjector(string memory _injectorHash) public {
+        injectors[_injectorHash] = true;
+    }
+
+    function issueCertificate(
+        string memory _medicalUnitHash,
+        string memory _injectorHash,
+        string memory _doctorHash,
+        string memory _vaccineDoseHash,
+        string memory _certificateHash) public {
+        require(
+            medicalUnits[_medicalUnitHash] == msg.sender,
+            "Medical unit is not matched."
+        );
+        require(
+            injectors[_injectorHash] == true,
+            "Injector is not existed."
+        );
+        require(
+            doctors[_doctorHash] == true,
+            "Doctor is not existed."
+        );
+        require(
+            vaccineDoses[_vaccineDoseHash] != address(0),
+            "Vaccine dose is not existed."
+        );
+        require(
+            certificates[_certificateHash].issuer != address(0),
+            "Certificate is already existed."
+        );
+        certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _doctorHash, _vaccineDoseHash);
+    }
+
+    /* Check functions */
+
+    function checkDoctor(string memory _doctorHash) public view returns(bool isExisted) {
+        isExisted = doctors[_doctorHash];
+    }
+
+    function checkInjector(string memory _injectorHash) public view returns(bool isExisted) {
+        isExisted = doctors[_injectorHash];
+    }
+
+    function checkCertificate(string memory _certificateHash) public view returns(bool isExisted) {
+        isExisted = certificates[_certificateHash].issuer != address(0);
+    }
+
+    function checkVaccineDose(string memory _vaccineDoseHash) public view returns(bool isExisted) {
+        isExisted = vaccineDoses[_vaccineDoseHash] != address(0);
+    }
+
+    function checkMedicalUnit(string memory _medicalUnitHash) public view returns(bool isExisted) {
+        isExisted = medicalUnits[_medicalUnitHash] != address(0);
     }
 }
