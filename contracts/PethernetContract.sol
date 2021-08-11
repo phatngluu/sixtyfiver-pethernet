@@ -119,7 +119,7 @@ contract PethernetContract {
             "Vaccine dose does not belong to this Medical Unit."
         );
         require(
-            certificates[_certificateHash].issuer != address(0),
+            certificates[_certificateHash].issuer == address(0),
             "Certificate is already existed."
         );
         
