@@ -4,6 +4,7 @@ const VaccineDoseSchema = new mongoose.Schema({
     VaccineName: String,
     ImportedDate: Date,
     ExpiredDate: Date,
+    MedicalUnitHash: String,
     Hash: String
 });
 
@@ -17,6 +18,7 @@ const MedicalUnitSchema = new mongoose.Schema({
 
 const DoctorSchema = new mongoose.Schema({
     FullName: String,
+    CitizenId: String,
     Hash: String,
 })
 
@@ -29,9 +31,18 @@ const InjectorSchema = new mongoose.Schema({
     Hash: String,
 })
 
+const CertificateSchema = new mongoose.Schema({
+    MedicalUnitHash: String,
+    InjectorHash: String,
+    DoctorHash: String,
+    VaccineDoseHash: String,
+    Hash: String,
+})
+
 const VaccineDoseModel = mongoose.model("VaccineDose", VaccineDoseSchema);
 const MedicalUnitModel = mongoose.model("MedicalUnit", MedicalUnitSchema);
 const DoctorModel = mongoose.model("Doctor", DoctorSchema);
 const InjectorModel = mongoose.model("Injector", InjectorSchema);
+const CertificateModel = mongoose.model("Certificate", CertificateSchema);
 
-module.exports = {VaccineDoseModel, MedicalUnitModel, DoctorModel, InjectorModel};
+module.exports = {VaccineDoseModel, MedicalUnitModel, DoctorModel, InjectorModel, CertificateModel};
