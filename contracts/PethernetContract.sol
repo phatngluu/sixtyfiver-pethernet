@@ -5,6 +5,12 @@ pragma experimental ABIEncoderV2;
 contract PethernetContract {
     // Ministry of Health's account address 
     address public ministryOfHealthAddr = msg.sender;
+    string[] public medicalUnitsList;
+    string[] public vaccineDosesList;
+    string[] public certificatesList;
+    string[] public doctorsList;
+    string[] public injectorsList;
+
     // Medical Unit hash => Medical Unit account address
     mapping (string => address) medicalUnits;
     // Vaccine Dose hash => address of owner (Medical Unit or by default Ministry of Health)
@@ -18,7 +24,7 @@ contract PethernetContract {
     mapping (string => bool) injectors;
 
     /** Event */
-    event MedicalUnitEvent(string _medicalUnitHash, address _medicalUnitAddr);
+    event MedicalUnitAddedEvent(string _medicalUnitHash, address _medicalUnitAddr);
 
     modifier ministryOfHealthRestricted() {
         require(
@@ -36,11 +42,24 @@ contract PethernetContract {
     }
 
     function addMedicalUnit(string memory _medicalUnitHash, address _medicalUnitOriginAddr) public ministryOfHealthRestricted {
+        require(
+            medicalUnits[_medicalUnitHash] == address(0),
+            "Medical unit is already existed."
+        );
+        
+        medicalUnitsList.push(_medicalUnitHash);
         medicalUnits[_medicalUnitHash] = _medicalUnitOriginAddr;
-        emit MedicalUnitEvent(_medicalUnitHash, _medicalUnitOriginAddr);
+
+        emit MedicalUnitAddedEvent(_medicalUnitHash, _medicalUnitOriginAddr);
     }
 
     function addVaccineDose(string memory _vaccineDoseHash) public ministryOfHealthRestricted {
+        require(
+            vaccineDoses[_vaccineDoseHash] == address(0),
+            "Vaccine dose is already existed."
+        );
+
+        vaccineDosesList.push(_vaccineDoseHash);
         vaccineDoses[_vaccineDoseHash] = ministryOfHealthAddr;
     }
 
@@ -49,14 +68,31 @@ contract PethernetContract {
             medicalUnits[_medicalUnitHash] != address(0),
             "Medical unit is not existed."
         );
+        require(
+            vaccineDoses[_vaccineDoseHash] == ministryOfHealthAddr,
+            "Vaccine dose is unexisted or used."
+        );
+
         vaccineDoses[_vaccineDoseHash] = medicalUnits[_medicalUnitHash];
     }
 
     function addDoctor(string memory _doctorHash) public {
+        require(
+            doctors[_doctorHash] == false,
+            "Doctor is already existed"
+        );
+
+        doctorsList.push(_doctorHash);
         doctors[_doctorHash] = true;
     }
 
     function addInjector(string memory _injectorHash) public {
+        require(
+            injectors[_injectorHash] == false,
+            "Injector is already existed"
+        );
+
+        injectorsList.push(_injectorHash);
         injectors[_injectorHash] = true;
     }
 
@@ -79,13 +115,14 @@ contract PethernetContract {
             "Doctor is not existed."
         );
         require(
-            vaccineDoses[_vaccineDoseHash] != address(0),
-            "Vaccine dose is not existed."
+            vaccineDoses[_vaccineDoseHash] == medicalUnits[_medicalUnitHash],
+            "Vaccine dose does not belong to this Medical Unit."
         );
         require(
             certificates[_certificateHash].issuer != address(0),
             "Certificate is already existed."
         );
+        
         certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _doctorHash, _vaccineDoseHash);
     }
 
