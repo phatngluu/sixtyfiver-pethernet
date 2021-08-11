@@ -50,6 +50,34 @@ const register = (app) => {
             }
         })
     });
+
+    app.post("/api/vaccinedose/distribute", async (req, res) => {
+        // TODO: check existence
+        const vaccineDoseHash = req.body.VaccineDoseHash;
+        const medicalUnitHash = req.body.MedicalUnitHash;
+
+        model.VaccineDoseModel.updateOne(
+            { Hash: vaccineDoseHash },
+            { MedicalUnitHash: medicalUnitHash },
+            null,
+            (err, msg) => {
+                if(err) {
+                    res.json({success: false, message: err})
+                } else {
+                    const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
+                    pethernetContract.methods.distributeVaccineDose(vaccineDoseHash, medicalUnitHash).send(
+                        { 
+                            from: process.env.MINISTRY_OF_HEALTH_ADDRESS,
+                            gas: 150000,
+                        })
+                    .on('receipt', function(x){
+                        console.log(x);
+                    });
+    
+                    res.json({success: true, message: msg})
+                }
+            });
+    });
 }
 
 module.exports = { register };
