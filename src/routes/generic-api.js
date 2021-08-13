@@ -1,13 +1,17 @@
 require("dotenv").config();
 const hash = require("object-hash");
 const model = require("../models/models");
-const { web3, PethernetContractMeta } = require("../web3/web3");
+const { PethernetContractMeta } = require("../web3/web3");
 
 const register = (app) => {
     // const oidc = app.locals.oidc;
 
-    app.get("/api/testcontract", async (req, res) => {
-        
+    app.get("/api/contractABI", async (req, res) => {
+        res.json({ success: true, message: PethernetContractMeta.abi })
+    })
+
+    app.get("/api/contractAddress", async (req, res) => {
+        res.json({ success: true, message: process.env.PETHERNET_CONTRACT_ADDRESS })
     })
 
     // app.delete( `/api/guitars/remove/:id`, oidc.ensureAuthenticated(), async ( req: any, res ) => {
