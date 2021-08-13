@@ -147,4 +147,24 @@ contract PethernetContract {
     function checkMedicalUnit(string memory _medicalUnitHash) public view returns(bool isExisted) {
         isExisted = medicalUnits[_medicalUnitHash] != address(0);
     }
+
+    function vaccineDosesListGetter() public view returns (string[] memory) {
+        return vaccineDosesList;
+    }
+
+    function medicalUnitsListGetter() public view returns (string[] memory) {
+        return medicalUnitsList;
+    }
+
+    function certificatesListGetter() public view returns (string[] memory) {
+        return certificatesList;
+    }
+
+    function doctorsListGetter() public view returns (string[] memory) {
+        return doctorsList;
+    }
+
+    function injectorsListGetter() public view returns (string[] memory) {
+        return injectorsList;
+    }
 }
