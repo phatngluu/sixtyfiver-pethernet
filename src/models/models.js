@@ -1,42 +1,90 @@
 const mongoose = require("mongoose");
 const VaccineDoseSchema = new mongoose.Schema({
-    LotNo: String,
+    LotNo: {
+        type: String,
+        require: true,
+        unique: true,
+    },
     VaccineName: String,
     ImportedDate: Date,
     ExpiredDate: Date,
     MedicalUnitHash: String,
-    Hash: String
+    Hash: {
+        type: String,
+        require: true,
+        unique: true,
+    }
 });
 
 const MedicalUnitSchema = new mongoose.Schema({
-    MedCode: String,
+    MedCode: {
+        type: String,
+        require: true,
+        unique: true,
+    },
     Address: String,
     Contact: String,
     RegisteredOn: Date,
-    Hash: String,
+    Hash: {
+        type: String,
+        require: true,
+        unique: true,
+    }
 });
 
 const DoctorSchema = new mongoose.Schema({
     FullName: String,
-    CitizenId: String,
-    Hash: String,
+    CitizenId: {
+        type: String,
+        require: true,
+        unique: true,
+    },
+    Hash: {
+        type: String,
+        require: true,
+        unique: true,
+    }
 })
 
 const InjectorSchema = new mongoose.Schema({
     FullName: String,
     Birthday: Date,
-    CitizenId: String,
+    CitizenId: {
+        type: String,
+        require: true,
+        unique: true,
+    },
     Address: String,
     PhoneNumber: String,
-    Hash: String,
+    Hash: {
+        type: String,
+        require: true,
+        unique: true,
+    }
 })
 
 const CertificateSchema = new mongoose.Schema({
-    MedicalUnitHash: String,
-    InjectorHash: String,
-    DoctorHash: String,
-    VaccineDoseHash: String,
-    Hash: String,
+    MedicalUnitHash: {
+        type: String,
+        require: true,
+    },
+    InjectorHash: {
+        type: String,
+        require: true,
+    },
+    DoctorHash: {
+        type: String,
+        require: true,
+    },
+    VaccineDoseHash: {
+        type: String,
+        require: true,
+    },
+    Hash: {
+        type: String,
+        require: true,
+        unique: true,
+    }
 })
 
 const VaccineDoseModel = mongoose.model("VaccineDose", VaccineDoseSchema);
