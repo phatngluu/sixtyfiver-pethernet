@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 const VaccineDoseSchema = new mongoose.Schema({
-    LotNo: {
+    DoseId: {
         type: String,
         require: true,
         unique: true,
+    },
+    LotNo: {
+        type: String,
+        require: true,
     },
     VaccineName: String,
     ImportedDate: Date,

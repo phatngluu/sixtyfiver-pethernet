@@ -11,7 +11,7 @@ const register = (app) => {
 
         const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
         pethernetContract.methods.checkVaccineDose(vaccineDoseHash).call({
-            from: process.env.VACCINE_DOSE_PROVIDER_ADDRESS,
+            from: process.env.PETHERNET_SYSTEM_ADDRESS,
             gas: 150000
         })
         .then(function(result){
@@ -20,32 +20,20 @@ const register = (app) => {
     })
 
     app.post("/api/vaccinedose/add", async (req, res) => {
-        // TODO: check existence
-        
-
         const newVaccineDose = new model.VaccineDoseModel({
-            DoseId: req.body.DoseId,
-            LotNo: req.body.LotNo,
-            VaccineName:req.body.VaccineName,
-            ImportedDate: req.body.ImportedDate,
-            ExpiredDate: new Date(),
-            Hash: hash(`${req.body.DoseId}${req.body.LotNo}${req.body.VaccineName}${req.body.ExpiredDate}`),
+            DoseId: req.body.doseId,
+            LotNo: req.body.lotNo,
+            VaccineName:req.body.vaccineName,
+            ImportedDate: req.body.importedDate,
+            ExpiredDate: req.body.expiredDate,
+            MedicalUnitHash: `${process.env.MINISTRY_OF_HEALTH_ADDRESS}`,
+            Hash: req.body.hash,
         });
 
         newVaccineDose.save(err => {
             if(err) {
                 res.json({success: false, message: err})
             } else {
-                const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-                pethernetContract.methods.addVaccineDose(newVaccineDose.Hash).send(
-                    { 
-                        from: process.env.MINISTRY_OF_HEALTH_ADDRESS,
-                        gas: 150000,
-                    })
-                .on('receipt', function(x){
-                    console.log(x);
-                });
-
                 res.json({success: true, message: newVaccineDose})
             }
         })
