@@ -29,6 +29,12 @@ const MedicalUnitSchema = new mongoose.Schema({
     Address: String,
     Contact: String,
     RegisteredOn: Date,
+    VerifiedOn: Date,
+    VerificationStatus: {
+        type: String,
+        enum: ['Unverified', 'Verified', 'Rejected'],
+        default: 'Unverified'
+    },
     Hash: {
         type: String,
         require: true,
