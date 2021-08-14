@@ -31,6 +31,16 @@ const register = (app) => {
             }
         })
     });
+
+    app.get("/api/doctor/check", async (req, res) => {
+        const doctorHash = req.query.hash;
+
+        const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
+        pethernetContract.methods.checkDoctor(doctorHash).call()
+        .then((result) => {
+            res.json({ success: true, message: result });
+        });
+    });
 }
 
 module.exports = { register };
