@@ -14,9 +14,10 @@ const app = express();
 // Configure Express to parse incoming JSON data
 app.use( express.json() );
 
+// app.use('/', express.static('public'));
 // Configure Express to use EJS
-app.set( "views", path.join( __dirname, "views" ) );
-app.set( "view engine", "ejs" );
+// app.set( "views", path.join( __dirname, "public" ) );
+// app.set( "view engine", "pug" );
 
 // Configure session auth
 // sessionAuth.register( app );

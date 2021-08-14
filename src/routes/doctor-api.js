@@ -8,9 +8,9 @@ const register = (app) => {
         // TODO: check existence
 
         const newDoctor = new model.DoctorModel({
-            FullName: req.body.FullName,
-            CitizenId: req.body.CitizenId,
-            Hash: hash(`${req.body.CitizenId}`),
+            FullName: req.body.fullName,
+            CitizenId: req.body.citizenId,
+            Hash: hash(`${req.body.citizenId}`),
         })
 
         newDoctor.save(err => {

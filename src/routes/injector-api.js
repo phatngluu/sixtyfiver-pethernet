@@ -9,12 +9,12 @@ const register = (app) => {
         // TODO: check existence
 
         const newInjector = new model.InjectorModel({
-            FullName: req.body.FullName,
-            Birthday: req.body.Birthday,
-            CitizenId: req.body.CitizenId,
-            Address: req.body.Address,
-            PhoneNumber: req.body.PhoneNumber,
-            Hash: hash(`${req.body.CitizenId}`),
+            FullName: req.body.fullName,
+            Birthday: req.body.birthday,
+            CitizenId: req.body.citizenId,
+            Address: req.body.address,
+            PhoneNumber: req.body.phoneNumber,
+            Hash: hash(`${req.body.citizenId}`),
         })
 
         newInjector.save(err => {
