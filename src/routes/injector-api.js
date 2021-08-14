@@ -35,6 +35,16 @@ const register = (app) => {
             }
         })
     });
+
+    app.get("/api/injector/check", async (req, res) => {
+        const injectorHash = req.query.hash;
+
+        const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
+        pethernetContract.methods.checkInjector(injectorHash).call()
+        .then((result) => {
+            res.json({ success: true, message: result });
+        });
+    });
 }
 
 module.exports = { register };
