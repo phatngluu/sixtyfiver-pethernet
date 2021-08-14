@@ -133,7 +133,7 @@ contract PethernetContract {
     }
 
     function checkInjector(string memory _injectorHash) public view returns(bool isExisted) {
-        isExisted = doctors[_injectorHash];
+        isExisted = injectors[_injectorHash];
     }
 
     function checkCertificate(string memory _certificateHash) public view returns(bool isExisted) {
