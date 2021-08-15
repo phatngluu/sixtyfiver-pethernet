@@ -25,6 +25,12 @@ contract PethernetContract {
 
     /** Event */
     event MedicalUnitAddedEvent(string _medicalUnitHash, address _medicalUnitAddr);
+    event VaccinDoseAddedEvent(string _vaccineDoseHash);
+    event DoctorAddedEvent(string _doctorHash);
+    event InjectorAddedEvent(string _injectorHash);
+    event DistributedVaccinDoseAddedEvent(string _vaccineDoseHash, string _medicalUnitHash);
+    event IssuedCertEvent(string _certificateHash, string _injectorHash);
+
 
     modifier ministryOfHealthRestricted() {
         require(
@@ -61,6 +67,7 @@ contract PethernetContract {
 
         vaccineDosesList.push(_vaccineDoseHash);
         vaccineDoses[_vaccineDoseHash] = ministryOfHealthAddr;
+        emit VaccinDoseAddedEvent(_vaccineDoseHash);
     }
 
     function distributeVaccineDose(string memory _vaccineDoseHash, string memory _medicalUnitHash) public ministryOfHealthRestricted {
@@ -74,6 +81,7 @@ contract PethernetContract {
         );
 
         vaccineDoses[_vaccineDoseHash] = medicalUnits[_medicalUnitHash];
+        emit DistributedVaccinDoseAddedEvent(_vaccineDoseHash, _medicalUnitHash);
     }
 
     function addDoctor(string memory _doctorHash) public {
@@ -84,6 +92,7 @@ contract PethernetContract {
 
         doctorsList.push(_doctorHash);
         doctors[_doctorHash] = true;
+        emit DoctorAddedEvent(_doctorHash);
     }
 
     function addInjector(string memory _injectorHash) public {
@@ -94,6 +103,7 @@ contract PethernetContract {
 
         injectorsList.push(_injectorHash);
         injectors[_injectorHash] = true;
+        emit InjectorAddedEvent(_injectorHash);
     }
 
     function issueCertificate(
@@ -115,7 +125,7 @@ contract PethernetContract {
             "Doctor is not existed."
         );
         require(
-            vaccineDoses[_vaccineDoseHash] == medicalUnits[_medicalUnitHash],
+            vaccineDoses[_vaccineDoseHash] == msg.sender,
             "Vaccine dose does not belong to this Medical Unit."
         );
         require(
@@ -124,6 +134,7 @@ contract PethernetContract {
         );
         
         certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _doctorHash, _vaccineDoseHash);
+        emit IssuedCertEvent(_certificateHash, _injectorHash);
     }
 
     /* Check functions */
