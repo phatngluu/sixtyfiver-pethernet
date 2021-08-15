@@ -26,8 +26,12 @@ const MedicalUnitSchema = new mongoose.Schema({
         require: true,
         unique: true,
     },
-    Address: String,
-    Contact: String,
+    MedName: {
+        type: String,
+        require: true,
+    },
+    AccountAddress: String,
+    PhysicalAddress: String,
     RegisteredOn: Date,
     VerifiedOn: Date,
     VerificationStatus: {

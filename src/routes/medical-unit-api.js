@@ -9,8 +9,9 @@ const register = (app) => {
     app.post("/api/medicalunit/add", async (req, res) => {
         const newMedicalUnit = new model.MedicalUnitModel({
             MedCode: req.body.medCode,
-            Address: req.body.address,
-            Contact: req.body.contact,
+            MedName: req.body.medName,
+            AccountAddress: req.body.accountAddress,
+            PhysicalAddress: req.body.physicalAddress,
             RegisteredOn: new Date(),
             VerifiedOn: null,
             Hash: hash(`${req.body.medCode}`),
@@ -49,7 +50,7 @@ const register = (app) => {
 
     app.get("/api/medicalunit/getVerified", async (req, res) => {
         model.MedicalUnitModel.find(
-            { VerificationStatus: 'Verified' }, 
+            { VerificationStatus: 'Verified' },
             (err, result) => {
                 if (err) {
                     res.json({ success: false, message: err });
@@ -57,8 +58,9 @@ const register = (app) => {
                     const filteredResult = result.map(x => {
                         return {
                             medCode: x.MedCode,
-                            address: x.Address,
-                            contact: x.Contact,
+                            medName: x.MedName,
+                            accountAddress: x.AccountAddress,
+                            physicalAddress: x.PhysicalAddress,
                             registeredOn: x.RegisteredOn,
                             verifiedOn: x.VerifiedOn,
                             hash: x.Hash
@@ -71,7 +73,7 @@ const register = (app) => {
 
     app.get("/api/medicalunit/getUnverified", async (req, res) => {
         model.MedicalUnitModel.find(
-            { VerificationStatus: 'Unverified' }, 
+            { VerificationStatus: 'Unverified' },
             (err, result) => {
                 if (err) {
                     res.json({ success: false, message: err });
@@ -79,8 +81,9 @@ const register = (app) => {
                     const filteredResult = result.map(x => {
                         return {
                             medCode: x.MedCode,
-                            address: x.Address,
-                            contact: x.Contact,
+                            medName: x.MedName,
+                            accountAddress: x.AccountAddress,
+                            physicalAddress: x.PhysicalAddress,
                             registeredOn: x.RegisteredOn,
                             hash: x.Hash
                         }
@@ -91,16 +94,42 @@ const register = (app) => {
     });
 
     app.post("/api/medicalunit/verify", async (req, res) => {
-        const medicalUnitHash = req.query.medicalUnitHash;
+        const medicalUnitHash = req.body.medicalUnitHash;
 
         model.MedicalUnitModel.findOneAndUpdate(
-            { Hash: medicalUnitHash }, 
+            { Hash: medicalUnitHash },
             { VerifiedOn: new Date(), VerificationStatus: 'Verified' },
-            (err, result) => {
+            (err, updatedMedicalUnit) => {
                 if (err) {
                     res.json({ success: false, message: err });
                 } else {
-                    res.json({ success: true, message: result });
+                    const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
+
+                    try {
+                        pethernetContract.methods.addMedicalUnit(updatedMedicalUnit.Hash, updatedMedicalUnit.AccountAddress).send(
+                            {
+                                from: process.env.PETHERNET_SYSTEM_ADDRESS,
+                                gas: 150000,
+                            })
+                            .on('receipt', function (x) {
+                                console.log(x);
+                            });
+                    } catch (err) {
+                        res.json({ success: false, message: err });
+                        console.log(err);
+                        return;
+                    };
+
+                    const filteredResult = {
+                        medCode: updatedMedicalUnit.MedCode,
+                        medName: updatedMedicalUnit.MedName,
+                        accountAddress: updatedMedicalUnit.AccountAddress,
+                        physicalAddress: updatedMedicalUnit.PhysicalAddress,
+                        registeredOn: updatedMedicalUnit.RegisteredOn,
+                        hash: updatedMedicalUnit.Hash
+                    };
+
+                    res.json({ success: true, message: filteredResult });
                 }
             });
     });
@@ -131,10 +160,10 @@ const register = (app) => {
                         certificate.DoctorHash,
                         certificate.VaccineDoseHash,
                         certificate.Hash).send(
-                        {
-                            from: process.env.MEDICAL_UNIT_1,
-                            gas: 150000,
-                        })
+                            {
+                                from: process.env.MEDICAL_UNIT_1,
+                                gas: 150000,
+                            })
                         .on('receipt', function (x) {
                             console.log(x);
                         });
