@@ -14,16 +14,16 @@ const register = (app) => {
             from: process.env.PETHERNET_SYSTEM_ADDRESS,
             gas: 150000
         })
-        .then(function(result){
-            res.json({success: true, message: result})
-        });;
+            .then(function (result) {
+                res.json({ success: true, message: result })
+            });;
     })
 
     app.post("/api/vaccinedose/add", async (req, res) => {
         const newVaccineDose = new model.VaccineDoseModel({
             DoseId: req.body.doseId,
             LotNo: req.body.lotNo,
-            VaccineName:req.body.vaccineName,
+            VaccineName: req.body.vaccineName,
             ImportedDate: req.body.importedDate,
             ExpiredDate: req.body.expiredDate,
             MedicalUnitHash: `${process.env.MINISTRY_OF_HEALTH_ADDRESS}`,
@@ -31,10 +31,10 @@ const register = (app) => {
         });
 
         newVaccineDose.save(err => {
-            if(err) {
-                res.json({success: false, message: err})
+            if (err) {
+                res.json({ success: false, message: err })
             } else {
-                res.json({success: true, message: newVaccineDose})
+                res.json({ success: true, message: newVaccineDose })
             }
         })
     });
@@ -49,22 +49,44 @@ const register = (app) => {
             { MedicalUnitHash: medicalUnitHash },
             null,
             (err, msg) => {
-                if(err) {
-                    res.json({success: false, message: err})
+                if (err) {
+                    res.json({ success: false, message: err })
                 } else {
                     const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
                     pethernetContract.methods.distributeVaccineDose(vaccineDoseHash, medicalUnitHash).send(
-                        { 
+                        {
                             from: process.env.MINISTRY_OF_HEALTH_ADDRESS,
                             gas: 150000,
                         })
-                    .on('receipt', function(x){
-                        console.log(x);
-                    });
-    
-                    res.json({success: true, message: msg})
+                        .on('receipt', function (x) {
+                            console.log(x);
+                        });
+
+                    res.json({ success: true, message: msg })
                 }
             });
+    });
+
+    app.get('/api/vaccinedose/getAll', async (req, res) => {
+        model.VaccineDoseModel.find(
+            { MedicalUnitHash: process.env.MINISTRY_OF_HEALTH_ADDRESS },
+        (err, result) => {
+            if (err) {
+                res.json({ success: false, message: err });
+            } else {
+                const filteredResult = result.map(x => {
+                    return {
+                        doseId: x.DoseId,
+                        lotNo: x.LotNo,
+                        vaccineName: x.VaccineName,
+                        expiredDate: x.ExpiredDate,
+                        medicalUnitHash: x.MedicalUnitHash,
+                        hash: x.Hash
+                    }
+                });
+                res.json({ success: true, message: filteredResult });
+            }
+        });
     });
 }
 

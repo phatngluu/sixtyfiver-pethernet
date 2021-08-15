@@ -5,7 +5,7 @@ const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
 
-    app.get("/api/medicalunit/:medicalUnitHash", async (req, res) => {
+    app.get("/api/medicalunit/get/:medicalUnitHash", async (req, res) => {
         const medicalUnitHash = req.params.medicalUnitHash;
         model.MedicalUnitModel.findOne({ Hash: medicalUnitHash }, null, null, (err, doc) => {
             if (err) {
