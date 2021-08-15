@@ -5,6 +5,26 @@ const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
 
+    app.get("/api/medicalunit/:medicalUnitHash", async (req, res) => {
+        const medicalUnitHash = req.params.medicalUnitHash;
+        model.MedicalUnitModel.findOne({ Hash: medicalUnitHash }, null, null, (err, doc) => {
+            if (err) {
+                res.json({ success: false, message: err });
+            } else {
+                const filteredResult = doc === null ? null : {
+                    medCode: doc.MedCode,
+                    medName: doc.MedName,
+                    accountAddress: doc.AccountAddress,
+                    physicalAddress: doc.PhysicalAddress,
+                    registeredOn: doc.RegisteredOn,
+                    verifiedOn: doc.VerifiedOn,
+                    hash: doc.Hash
+                }
+                res.json({ success: true, message: filteredResult });
+            }
+        })
+    })
+
     // only ministry of health can create medical unit
     app.post("/api/medicalunit/add", async (req, res) => {
         const newMedicalUnit = new model.MedicalUnitModel({
@@ -120,6 +140,30 @@ const register = (app) => {
                         return;
                     };
 
+                    const filteredResult = {
+                        medCode: updatedMedicalUnit.MedCode,
+                        medName: updatedMedicalUnit.MedName,
+                        accountAddress: updatedMedicalUnit.AccountAddress,
+                        physicalAddress: updatedMedicalUnit.PhysicalAddress,
+                        registeredOn: updatedMedicalUnit.RegisteredOn,
+                        hash: updatedMedicalUnit.Hash
+                    };
+
+                    res.json({ success: true, message: filteredResult });
+                }
+            });
+    });
+
+    app.post("/api/medicalunit/reject", async (req, res) => {
+        const medicalUnitHash = req.body.medicalUnitHash;
+
+        model.MedicalUnitModel.findOneAndUpdate(
+            { Hash: medicalUnitHash },
+            { VerifiedOn: new Date(), VerificationStatus: 'Rejected' },
+            (err, updatedMedicalUnit) => {
+                if (err) {
+                    res.json({ success: false, message: err });
+                } else {
                     const filteredResult = {
                         medCode: updatedMedicalUnit.MedCode,
                         medName: updatedMedicalUnit.MedName,

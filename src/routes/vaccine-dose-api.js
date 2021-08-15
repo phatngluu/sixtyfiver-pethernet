@@ -41,8 +41,8 @@ const register = (app) => {
 
     app.post("/api/vaccinedose/distribute", async (req, res) => {
         // TODO: check existence
-        const vaccineDoseHash = req.body.VaccineDoseHash;
-        const medicalUnitHash = req.body.MedicalUnitHash;
+        const vaccineDoseHash = req.body.vaccineDoseHash;
+        const medicalUnitHash = req.body.medicalUnitHash;
 
         model.VaccineDoseModel.updateOne(
             { Hash: vaccineDoseHash },
