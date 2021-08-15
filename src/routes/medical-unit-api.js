@@ -180,44 +180,61 @@ const register = (app) => {
 
     app.post("/api/medicalunit/issueCertificate", async (req, res) => {
         // TODO: check existence
-        // TODO replace by the address in request
-        const medicalUnitOriginAddr = process.env.MEDICAL_UNIT_1;
 
         const certificate = new model.CertificateModel({
-            MedicalUnitHash: req.body.MedicalUnitHash,
-            InjectorHash: req.body.InjectorHash,
-            DoctorHash: req.body.DoctorHash,
-            VaccineDoseHash: req.body.VaccineDoseHash,
-            Hash: hash(`${req.body.MedicalUnitHash}${req.body.InjectorHash}${req.body.DoctorHash}${req.body.VaccineDoseHash}`),
+            MedicalUnitHash: req.body.medicalUnitHash,
+            InjectorHash: req.body.injectorHash,
+            DoctorHash: req.body.doctorHash,
+            VaccineDoseHash: req.body.vaccineDoseHash,
+            Hash: hash(`${req.body.medicalUnitHash}${req.body.injectorHash}${req.body.doctorHash}${req.body.vaccineDoseHash}`),
         })
 
         certificate.save(err => {
             if (err) {
                 res.json({ success: false, message: err })
             } else {
-                const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-
-                try {
-                    pethernetContract.methods.issueCertificate(
-                        certificate.MedicalUnitHash,
-                        certificate.InjectorHash,
-                        certificate.DoctorHash,
-                        certificate.VaccineDoseHash,
-                        certificate.Hash).send(
-                            {
-                                from: process.env.MEDICAL_UNIT_1,
-                                gas: 150000,
-                            })
-                        .on('receipt', function (x) {
-                            console.log(x);
-                        });
-                } catch (err) {
-                    console.log(err);
-                }
-
                 res.json({ success: true, message: certificate })
             }
         })
+    });
+
+    app.get('/api/medicalunit/getAvailableVaccineDoses/:medicalUnitHash', async (req, res) => {
+        const medicalUnitHash = req.params.medicalUnitHash;
+        model.VaccineDoseModel.aggregate([
+            {
+                "$lookup": {
+                    "from": "certificates",
+                    "localField": "Hash",
+                    "foreignField": "VaccineDoseHash",
+                    "as": "linkedCertificates"
+                }
+            },
+            {
+                "$match": {
+                    "linkedCertificates": {
+                        "$size": 0
+                    },
+                    "MedicalUnitHash": {
+                        "$eq": `${medicalUnitHash}`
+                    }
+                }
+            }
+        ]).then((result) => {
+            const filteredResult = result.map(x => {
+                return {
+                    doseId: x.DoseId,
+                    lotNo: x.LotNo,
+                    vaccineName: x.VaccineName,
+                    expiredDate: x.ExpiredDate,
+                    medicalUnitHash: x.MedicalUnitHash,
+                    hash: x.Hash
+                }
+            });
+
+            res.json({ success: true, message: filteredResult });
+        }, err => {
+            res.json({ success: false, message: err });
+        });
     });
 }
 
