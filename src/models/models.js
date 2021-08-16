@@ -101,10 +101,37 @@ const CertificateSchema = new mongoose.Schema({
     }
 })
 
+const UserSchema = new mongoose.Schema({
+    LegalName: {
+        type: String,
+        require: true,
+        unique: true,
+    },
+    Username: {
+        type: String,
+        require: true,
+    },
+    Password: {
+        type: String,
+        require: true,
+    },
+    Sessions: [{
+        token: {
+            type: String,
+            required: true
+        },
+        expiredAt: {
+            type: Number,
+            required: true
+        }
+    }]
+})
+
 const VaccineDoseModel = mongoose.model("VaccineDose", VaccineDoseSchema);
 const MedicalUnitModel = mongoose.model("MedicalUnit", MedicalUnitSchema);
 const DoctorModel = mongoose.model("Doctor", DoctorSchema);
 const InjectorModel = mongoose.model("Injector", InjectorSchema);
 const CertificateModel = mongoose.model("Certificate", CertificateSchema);
+const UserModel = mongoose.model("User", UserSchema);
 
-module.exports = {VaccineDoseModel, MedicalUnitModel, DoctorModel, InjectorModel, CertificateModel};
+module.exports = {VaccineDoseModel, MedicalUnitModel, DoctorModel, InjectorModel, CertificateModel, UserModel};

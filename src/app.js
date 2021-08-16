@@ -2,7 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const mongoose = require( "mongoose");
-const routes = require("./routes/index")
+const routes = require("./routes/index");
+const errorHandler = require("./_helpers/error-handler");
 // import * as sessionAuth = require( "./middleware/sessionAuth";
 
 // port is now available to the Node.js runtime
@@ -12,12 +13,10 @@ const port = process.env.SERVER_PORT;
 const app = express();
 
 // Configure Express to parse incoming JSON data
-app.use( express.json() );
+app.use(express.json());
 
-// app.use('/', express.static('public'));
-// Configure Express to use EJS
-// app.set( "views", path.join( __dirname, "public" ) );
-// app.set( "view engine", "pug" );
+// Global error handler
+app.use(errorHandler);
 
 // Configure session auth
 // sessionAuth.register( app );
