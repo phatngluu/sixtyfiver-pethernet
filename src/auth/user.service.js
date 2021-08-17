@@ -7,15 +7,15 @@ console.log(Role.MinistryOfHealth);
 const users = [
     { id: 1, username: 'admin', password: 'admin', firstName: 'Admin', role: Role.Admin },
     { id: 2, username: 'ministry', password: '12345', firstName: 'Ministry of Health', role: Role.MinistryOfHealth },
-    { id: 2, username: 'med1', password: '12345', firstName: 'med1', role: Role.MedicalUnit },
-    { id: 2, username: 'med2', password: '12345', firstName: 'med2', role: Role.MedicalUnit },
-    { id: 2, username: 'med3', password: '12345', firstName: 'med3', role: Role.MedicalUnit },
-    { id: 2, username: 'user1', password: '12345', firstName: 'user1', role: Role.Injector },
-    { id: 2, username: 'user2', password: '12345', firstName: 'user2', role: Role.Injector },
-    { id: 2, username: 'user3', password: '12345', firstName: 'user3', role: Role.Injector },
-    { id: 2, username: 'doc1', password: '12345', firstName: 'Normal', role: Role.Doctor },
-    { id: 2, username: 'doc2', password: '12345', firstName: 'Normal', role: Role.Doctor },
-    { id: 2, username: 'doc3', password: '12345', firstName: 'Normal', role: Role.Doctor },
+    { id: 3, username: 'med1', password: '12345', firstName: 'med1', role: Role.MedicalUnit },
+    { id: 4, username: 'med2', password: '12345', firstName: 'med2', role: Role.MedicalUnit },
+    { id: 5, username: 'med3', password: '12345', firstName: 'med3', role: Role.MedicalUnit },
+    { id: 6, username: 'user1', password: '12345', firstName: 'user1', role: Role.Injector },
+    { id: 7, username: 'user2', password: '12345', firstName: 'user2', role: Role.Injector },
+    { id: 8, username: 'user3', password: '12345', firstName: 'user3', role: Role.Injector },
+    { id: 9, username: 'doc1', password: '12345', firstName: 'Normal', role: Role.Doctor },
+    { id: 10, username: 'doc2', password: '12345', firstName: 'Normal', role: Role.Doctor },
+    { id: 11, username: 'doc3', password: '12345', firstName: 'Normal', role: Role.Doctor },
 ];
 
 module.exports = {

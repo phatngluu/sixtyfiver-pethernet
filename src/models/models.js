@@ -21,6 +21,11 @@ const VaccineDoseSchema = new mongoose.Schema({
 });
 
 const MedicalUnitSchema = new mongoose.Schema({
+    UserId: {
+        type: Number,
+        require: true,
+        unique: true,
+    },
     MedCode: {
         type: String,
         require: true,

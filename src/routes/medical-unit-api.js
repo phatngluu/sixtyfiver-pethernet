@@ -1,9 +1,33 @@
 require("dotenv").config();
 const hash = require("object-hash");
+const authorize = require("../middleware/auth");
 const model = require("../models/models");
+const Role = require('../_helpers/role');
 const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
+
+    app.get("/api/medicalunit/getAuthorizedMedicalUnit", authorize(Role.MedicalUnit), async (req, res) => {
+        console.log(req.user);
+
+        const medicalUnitHash = req.query.medicalUnitHash;
+        model.MedicalUnitModel.findOne({ UserId: req.user.sub }, null, null, (err, doc) => {
+            if (err) {
+                res.json({ success: false, message: err });
+            } else {
+                const filteredResult = doc === null ? null : {
+                    medCode: doc.MedCode,
+                    medName: doc.MedName,
+                    accountAddress: doc.AccountAddress,
+                    physicalAddress: doc.PhysicalAddress,
+                    registeredOn: doc.RegisteredOn,
+                    verifiedOn: doc.VerifiedOn,
+                    hash: doc.Hash
+                }
+                res.json({ success: true, message: filteredResult });
+            }
+        })
+    })
 
     app.get("/api/medicalunit/get/:medicalUnitHash", async (req, res) => {
         const medicalUnitHash = req.params.medicalUnitHash;
@@ -28,6 +52,7 @@ const register = (app) => {
     // only ministry of health can create medical unit
     app.post("/api/medicalunit/add", async (req, res) => {
         const newMedicalUnit = new model.MedicalUnitModel({
+            UserId: req.body.userId,
             MedCode: req.body.medCode,
             MedName: req.body.medName,
             AccountAddress: req.body.accountAddress,
