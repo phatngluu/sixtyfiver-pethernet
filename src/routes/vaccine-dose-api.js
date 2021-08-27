@@ -4,8 +4,6 @@ const model = require("../models/models");
 const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
-    // const oidc = app.locals.oidc;
-
     app.get("/api/vaccinedose/check", async (req, res) => {
         const vaccineDoseHash = req.query.vaccineDoseHash;
 
