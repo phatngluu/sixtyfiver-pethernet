@@ -8,7 +8,6 @@ contract PethernetContract {
     string[] public medicalUnitsList;
     string[] public vaccineDosesList;
     string[] public certificatesList;
-    string[] public doctorsList;
     string[] public injectorsList;
 
     // Medical Unit hash => Medical Unit account address
@@ -17,20 +16,15 @@ contract PethernetContract {
     mapping (string => address) vaccineDoses;
     // Certificate hash => Medical Unit address account
     mapping (string => Certificate) certificates;
-
-    // Doctor hash => existed?
-    mapping (string => bool) doctors;
     // Injector hash => existed?
     mapping (string => bool) injectors;
 
     /** Event */
     event MedicalUnitAddedEvent(string _medicalUnitHash, address _medicalUnitAddr);
     event VaccinDoseAddedEvent(string _vaccineDoseHash);
-    event DoctorAddedEvent(string _doctorHash);
     event InjectorAddedEvent(string _injectorHash);
     event DistributedVaccinDoseAddedEvent(string _vaccineDoseHash, string _medicalUnitHash);
     event IssuedCertEvent(string _certificateHash, string _injectorHash);
-
 
     modifier ministryOfHealthRestricted() {
         require(
@@ -43,7 +37,6 @@ contract PethernetContract {
     struct Certificate {
         address issuer; // Medical unit address
         string injector;
-        string doctor;
         string vaccineDose;
     }
 
@@ -84,17 +77,6 @@ contract PethernetContract {
         emit DistributedVaccinDoseAddedEvent(_vaccineDoseHash, _medicalUnitHash);
     }
 
-    function addDoctor(string memory _doctorHash) public {
-        require(
-            doctors[_doctorHash] == false,
-            "Doctor is already existed"
-        );
-
-        doctorsList.push(_doctorHash);
-        doctors[_doctorHash] = true;
-        emit DoctorAddedEvent(_doctorHash);
-    }
-
     function addInjector(string memory _injectorHash) public {
         require(
             injectors[_injectorHash] == false,
@@ -109,7 +91,6 @@ contract PethernetContract {
     function issueCertificate(
         string memory _medicalUnitHash,
         string memory _injectorHash,
-        string memory _doctorHash,
         string memory _vaccineDoseHash,
         string memory _certificateHash) public {
         require(
@@ -121,10 +102,6 @@ contract PethernetContract {
             "Injector is not existed."
         );
         require(
-            doctors[_doctorHash] == true,
-            "Doctor is not existed."
-        );
-        require(
             vaccineDoses[_vaccineDoseHash] == msg.sender,
             "Vaccine dose does not belong to this Medical Unit."
         );
@@ -133,14 +110,8 @@ contract PethernetContract {
             "Certificate is already existed."
         );
         
-        certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _doctorHash, _vaccineDoseHash);
+        certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _vaccineDoseHash);
         emit IssuedCertEvent(_certificateHash, _injectorHash);
-    }
-
-    /* Check functions */
-
-    function checkDoctor(string memory _doctorHash) public view returns(bool isExisted) {
-        isExisted = doctors[_doctorHash];
     }
 
     function checkInjector(string memory _injectorHash) public view returns(bool isExisted) {
@@ -169,10 +140,6 @@ contract PethernetContract {
 
     function certificatesListGetter() public view returns (string[] memory) {
         return certificatesList;
-    }
-
-    function doctorsListGetter() public view returns (string[] memory) {
-        return doctorsList;
     }
 
     function injectorsListGetter() public view returns (string[] memory) {
