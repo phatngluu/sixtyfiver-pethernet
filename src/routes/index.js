@@ -1,7 +1,6 @@
 const genericAPI = require("./generic-api");
 const vaccineDoseAPI = require("./vaccine-dose-api");
 const medicalUnitAPI = require("./medical-unit-api");
-const doctorAPI = require("./doctor-api");
 const injectorAPI = require("./injector-api");
 const authAPI = require("./auth-api");
 
@@ -13,7 +12,6 @@ const register = (app) => {
     genericAPI.register(app);
     vaccineDoseAPI.register(app);
     medicalUnitAPI.register(app);
-    doctorAPI.register(app);
     injectorAPI.register(app);
 
     // // define a route handler for the default home page
