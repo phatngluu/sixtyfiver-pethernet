@@ -110,6 +110,7 @@ contract PethernetContract {
             "Certificate is already existed."
         );
         
+        certificatesList.push(_certificateHash);
         certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _vaccineDoseHash);
         emit IssuedCertEvent(_certificateHash, _injectorHash);
     }

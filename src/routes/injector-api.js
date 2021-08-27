@@ -33,17 +33,24 @@ const register = (app) => {
             } else {
                 const userHash = doc.Hash;
 
-                model.CertificateModel.findOne({ InjectorHash: userHash }, null, null, (err, doc) => {
-                    if (err) {
-                        res.status(500).json({ success: false, message: err });
+                model.CertificateModel.find({ InjectorHash: userHash }, (error, certs) => {
+                    if (error) {
+                        res.status(500).json({ success: false, message: error });
                     } else {
-                        const filteredResult = doc === null ? null : {
-                            medicalUnitHash: doc.MedicalUnitHash,
-                            injectorHash: doc.InjectorHash,
-                            vaccineDoseHash: doc.VaccineDoseHash,
-                            hash: doc.Hash
-                        }
-                        res.status(200).json({ success: true, message: filteredResult });
+                        let filteredResults = [];
+
+                        certs.forEach((cert) => {
+                            const filteredResult = cert === null ? null : {
+                                medicalUnitHash: cert.MedicalUnitHash,
+                                injectorHash: cert.InjectorHash,
+                                vaccineDoseHash: cert.VaccineDoseHash,
+                                hash: cert.Hash
+                            }
+
+                            filteredResults.push(filteredResult);
+                        })
+
+                        res.status(200).json({ success: true, message: filteredResults });
                     }
                 })
             }
