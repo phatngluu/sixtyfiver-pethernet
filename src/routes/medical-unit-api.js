@@ -8,12 +8,9 @@ const { web3, PethernetContractMeta } = require("../web3/web3")
 const register = (app) => {
 
     app.get("/api/medicalunit/getAuthorizedMedicalUnit", authorize(Role.MedicalUnit), async (req, res) => {
-        console.log(req.user);
-
-        const medicalUnitHash = req.query.medicalUnitHash;
         model.MedicalUnitModel.findOne({ UserId: req.user.sub }, null, null, (err, doc) => {
             if (err) {
-                res.json({ success: false, message: err });
+                res.status(500).json({ success: false, message: err });
             } else {
                 const filteredResult = doc === null ? null : {
                     medCode: doc.MedCode,
@@ -24,7 +21,7 @@ const register = (app) => {
                     verifiedOn: doc.VerifiedOn,
                     hash: doc.Hash
                 }
-                res.json({ success: true, message: filteredResult });
+                res.status(200).json({ success: true, message: filteredResult });
             }
         })
     })
@@ -66,20 +63,6 @@ const register = (app) => {
             if (err) {
                 res.json({ success: false, message: err });
             } else {
-                // const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-
-                // try {
-                //     pethernetContract.methods.addMedicalUnit(newMedicalUnit.Hash, medicalUnitOriginAddr).send(
-                //         {
-                //             from: process.env.PETHERNET_SYSTEM_ADDRESS,
-                //             gas: 150000,
-                //         })
-                //         .on('receipt', function (x) {
-                //             console.log(x);
-                //         });
-                // } catch (err) {
-                //     console.log(err);
-                // }
                 const filteredResult = {
                     medCode: newMedicalUnit.MedCode,
                     address: newMedicalUnit.Address,
@@ -209,9 +192,8 @@ const register = (app) => {
         const certificate = new model.CertificateModel({
             MedicalUnitHash: req.body.medicalUnitHash,
             InjectorHash: req.body.injectorHash,
-            DoctorHash: req.body.doctorHash,
             VaccineDoseHash: req.body.vaccineDoseHash,
-            Hash: hash(`${req.body.medicalUnitHash}${req.body.injectorHash}${req.body.doctorHash}${req.body.vaccineDoseHash}`),
+            Hash: hash(`${req.body.medicalUnitHash}${req.body.injectorHash}${req.body.vaccineDoseHash}`),
         })
 
         certificate.save(err => {

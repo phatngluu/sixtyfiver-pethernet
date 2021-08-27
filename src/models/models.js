@@ -51,21 +51,12 @@ const MedicalUnitSchema = new mongoose.Schema({
     }
 });
 
-const DoctorSchema = new mongoose.Schema({
-    FullName: String,
-    CitizenId: {
-        type: String,
+const InjectorSchema = new mongoose.Schema({
+    UserId: {
+        type: Number,
         require: true,
         unique: true,
     },
-    Hash: {
-        type: String,
-        require: true,
-        unique: true,
-    }
-})
-
-const InjectorSchema = new mongoose.Schema({
     FullName: String,
     Birthday: Date,
     CitizenId: {
@@ -88,10 +79,6 @@ const CertificateSchema = new mongoose.Schema({
         require: true,
     },
     InjectorHash: {
-        type: String,
-        require: true,
-    },
-    DoctorHash: {
         type: String,
         require: true,
     },
@@ -134,9 +121,8 @@ const UserSchema = new mongoose.Schema({
 
 const VaccineDoseModel = mongoose.model("VaccineDose", VaccineDoseSchema);
 const MedicalUnitModel = mongoose.model("MedicalUnit", MedicalUnitSchema);
-const DoctorModel = mongoose.model("Doctor", DoctorSchema);
 const InjectorModel = mongoose.model("Injector", InjectorSchema);
 const CertificateModel = mongoose.model("Certificate", CertificateSchema);
 const UserModel = mongoose.model("User", UserSchema);
 
-module.exports = {VaccineDoseModel, MedicalUnitModel, DoctorModel, InjectorModel, CertificateModel, UserModel};
+module.exports = {VaccineDoseModel, MedicalUnitModel, InjectorModel, CertificateModel, UserModel};

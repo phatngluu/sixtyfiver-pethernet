@@ -1,14 +1,61 @@
 require("dotenv").config();
 const hash = require("object-hash");
 const model = require("../models/models");
+const authorize = require("../middleware/auth");
+const Role = require('../_helpers/role');
 const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
 
-    app.post("/api/injector/add", async (req, res) => {
+
+    app.get("/api/injector/getAuthorizedInjector", authorize(Role.Injector), async (req, res) => {
+        model.InjectorModel.findOne({ UserId: req.user.sub }, null, null, (err, doc) => {
+            if (err) {
+                res.status(500).json({ success: false, message: err });
+            } else {
+                const filteredResult = doc === null ? null : {
+                    fullName: doc.FullName,
+                    birthday: doc.Birthday,
+                    citizenId: doc.CitizenId,
+                    address: doc.Address,
+                    phoneNumber: doc.PhoneNumber,
+                    hash: doc.Hash
+                }
+                res.status(200).json({ success: true, message: filteredResult });
+            }
+        })
+    })
+
+    app.get("/api/injector/getAuthorizedCert", authorize(Role.Injector), async (req, res) => {
+        model.InjectorModel.findOne({ UserId: req.user.sub }, null, null, (err, doc) => {
+            if (err) {
+                res.status(500).json({ success: false, message: err });
+            } else {
+                const userHash = doc.Hash;
+
+                model.CertificateModel.findOne({ InjectorHash: userHash }, null, null, (err, doc) => {
+                    if (err) {
+                        res.status(500).json({ success: false, message: err });
+                    } else {
+                        const filteredResult = doc === null ? null : {
+                            medicalUnitHash: doc.MedicalUnitHash,
+                            injectorHash: doc.InjectorHash,
+                            vaccineDoseHash: doc.VaccineDoseHash,
+                            hash: doc.Hash
+                        }
+                        res.status(200).json({ success: true, message: filteredResult });
+                    }
+                })
+            }
+        })
+    })
+
+    app.post("/api/injector/add", authorize(Role.Injector), async (req, res) => {
         // TODO: check existence
+        const userId = req.user.sub;
 
         const newInjector = new model.InjectorModel({
+            UserId: userId,
             FullName: req.body.fullName,
             Birthday: req.body.birthday,
             CitizenId: req.body.citizenId,
@@ -41,9 +88,9 @@ const register = (app) => {
 
         const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
         pethernetContract.methods.checkInjector(injectorHash).call()
-        .then((result) => {
-            res.json({ success: true, message: result });
-        });
+            .then((result) => {
+                res.json({ success: true, message: result });
+            });
     });
 }
 
