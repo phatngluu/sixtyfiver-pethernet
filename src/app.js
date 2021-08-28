@@ -15,14 +15,11 @@ const app = express();
 // Configure Express to parse incoming JSON data
 app.use(express.json());
 
-// Global error handler
-app.use(errorHandler);
-
-// Configure session auth
-// sessionAuth.register( app );
-
 // Configure routes
 routes.register(app);
+
+// Global error handler
+app.use(errorHandler);
 
 // start the express server
 app.listen( port, () => {

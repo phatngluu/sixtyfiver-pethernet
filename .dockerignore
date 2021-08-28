@@ -1,0 +1,11 @@
+node_modules
+.env
+.github
+contracts
+migrations
+test
+README.md
+truffle-config.js
+.gitignore
+.dockerignore
+Dockerfile

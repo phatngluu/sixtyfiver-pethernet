@@ -6,9 +6,9 @@ const Role = require('../_helpers/role');
 
 const register = (app) => {
     // routes
-    app.post('/authenticate', authenticate);     // public route
-    app.get('/', authorize(Role.Admin), getAll); // admin only
-    app.get('/:id', authorize(), getById);       // all authenticated usersÎ
+    app.post('/api/auth/authenticate', authenticate);     // public route
+    app.get('/api/auth/', authorize(Role.Admin), getAll); // admin only
+    app.get('/api/auth/getUser/:id', authorize(), getById);       // all authenticated users
 }
 
 module.exports = { register };
