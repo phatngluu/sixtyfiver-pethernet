@@ -45,7 +45,7 @@ const register = (app) => {
             Hash: vaccineDoseHashes
         }, {
             MedicalUnitHash: medicalUnitHash
-        }, (err, res) => {
+        }, (err, _) => {
             if (err) {
                 res.json({ success: false, message: vaccineDoseHashes })
             } else {
