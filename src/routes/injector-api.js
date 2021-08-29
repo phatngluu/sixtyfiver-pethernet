@@ -3,7 +3,6 @@ const hash = require("object-hash");
 const model = require("../models/models");
 const authorize = require("../middleware/auth");
 const Role = require('../_helpers/role');
-const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
 
@@ -58,7 +57,6 @@ const register = (app) => {
     })
 
     app.post("/api/injector/add", authorize(Role.Injector), async (req, res) => {
-        // TODO: check existence
         const userId = req.user.sub;
 
         const newInjector = new model.InjectorModel({
@@ -75,17 +73,15 @@ const register = (app) => {
             if (err) {
                 res.json({ success: false, message: err });
             } else {
-                const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-                pethernetContract.methods.addInjector(newInjector.Hash).send(
-                    {
-                        from: process.env.PETHERNET_SYSTEM_ADDRESS,
-                        gas: 150000,
-                    })
-                    .on('receipt', function (x) {
-                        console.log(x);
-                    });
-
-                res.json({ success: true, message: newInjector });
+                const filteredResult = {
+                    fullName: newInjector.FullName,
+                    birthday: newInjector.Birthday,
+                    citizenId: newInjector.CitizenId,
+                    address: newInjector.Address,
+                    phoneNumber: newInjector.PhoneNumber,
+                    hash: newInjector.Hash
+                }
+                res.status(200).json({ success: true, message: filteredResult });
             }
         })
     });
@@ -93,11 +89,17 @@ const register = (app) => {
     app.get("/api/injector/check", async (req, res) => {
         const injectorHash = req.query.hash;
 
-        const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-        pethernetContract.methods.checkInjector(injectorHash).call()
-            .then((result) => {
-                res.json({ success: true, message: result });
-            });
+        model.InjectorModel.findOne({ Hash: injectorHash }, null, null, (err, doc) => {
+            if (err) {
+                res.status(500).json({ success: false, message: err });
+            } else {
+                if (doc) {
+                    res.status(200).json({ success: true, message: true });
+                } else {
+                    res.status(200).json({ success: true, message: false });
+                }
+            }
+        })
     });
 }
 
