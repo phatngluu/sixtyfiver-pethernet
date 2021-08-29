@@ -1,9 +1,7 @@
 require("dotenv").config();
-const hash = require("object-hash");
 const authorize = require("../middleware/auth");
-const model = require("../models/models");
 const Role = require('../_helpers/role');
-const { PethernetContractMeta } = require("../web3/web3");
+const PethernetContractMeta = require('../contracts/PethernetContract.json');
 
 const register = (app) => {
     app.get("/api/contractABI", async (req, res) => {

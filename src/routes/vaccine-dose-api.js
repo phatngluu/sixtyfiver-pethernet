@@ -1,21 +1,7 @@
 require("dotenv").config();
-const hash = require("object-hash");
 const model = require("../models/models");
-const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
-    app.get("/api/vaccinedose/check", async (req, res) => {
-        const vaccineDoseHash = req.query.vaccineDoseHash;
-
-        const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-        pethernetContract.methods.checkVaccineDose(vaccineDoseHash).call({
-            from: process.env.PETHERNET_SYSTEM_ADDRESS,
-            gas: 150000
-        })
-            .then(function (result) {
-                res.json({ success: true, message: result })
-            });;
-    })
 
     app.post("/api/vaccinedose/add", async (req, res) => {
         const newVaccineDose = new model.VaccineDoseModel({

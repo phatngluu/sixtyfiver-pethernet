@@ -3,7 +3,6 @@ const hash = require("object-hash");
 const authorize = require("../middleware/auth");
 const model = require("../models/models");
 const Role = require('../_helpers/role');
-const { web3, PethernetContractMeta } = require("../web3/web3")
 
 const register = (app) => {
 
