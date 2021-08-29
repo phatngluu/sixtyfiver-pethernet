@@ -31,7 +31,8 @@ contract PethernetContract {
     }
 
     struct Certificate {
-        address issuer; // Medical unit address
+        string issuer; // Medical unit address
+        address issuerAddr;
         string patient;
         string vaccineDose;
     }
@@ -90,12 +91,12 @@ contract PethernetContract {
             "Vaccine dose does not belong to this Medical Unit."
         );
         require(
-            certificates[_certificateHash].issuer == address(0),
+            certificates[_certificateHash].issuerAddr == address(0),
             "Certificate is already existed."
         );
         
         certificatesList.push(_certificateHash);
-        certificates[_certificateHash] = Certificate(msg.sender, _patientHash, _vaccineDoseHash);
+        certificates[_certificateHash] = Certificate(_medicalUnitHash, msg.sender, _patientHash, _vaccineDoseHash);
         emit IssuedCertEvent(_certificateHash, _patientHash);
     }
 
