@@ -2,8 +2,6 @@
 const jwt = require('jsonwebtoken');
 const Role = require('../_helpers/role');
 
-console.log(Role.MinistryOfHealth);
-
 const users = [
     { id: 1, username: 'admin', password: 'memphis13322', firstName: 'Admin', role: Role.Admin },
     { id: 2, username: 'ministry', password: 'memphis13322', firstName: 'Ministry of Health', role: Role.MinistryOfHealth },

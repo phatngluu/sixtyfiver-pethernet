@@ -38,53 +38,42 @@ const register = (app) => {
     });
 
     app.post("/api/vaccinedose/distribute", async (req, res) => {
-        // TODO: check existence
-        const vaccineDoseHash = req.body.vaccineDoseHash;
+        const vaccineDoseHashes = req.body.vaccineDoseHashes;
         const medicalUnitHash = req.body.medicalUnitHash;
 
-        model.VaccineDoseModel.updateOne(
-            { Hash: vaccineDoseHash },
-            { MedicalUnitHash: medicalUnitHash },
-            null,
-            (err, msg) => {
-                if (err) {
-                    res.json({ success: false, message: err })
-                } else {
-                    const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-                    pethernetContract.methods.distributeVaccineDose(vaccineDoseHash, medicalUnitHash).send(
-                        {
-                            from: process.env.MINISTRY_OF_HEALTH_ADDRESS,
-                            gas: 150000,
-                        })
-                        .on('receipt', function (x) {
-                            console.log(x);
-                        });
-
-                    res.json({ success: true, message: msg })
-                }
-            });
+        model.VaccineDoseModel.updateMany({
+            Hash: vaccineDoseHashes
+        }, {
+            MedicalUnitHash: medicalUnitHash
+        }, (err, res) => {
+            if (err) {
+                res.json({ success: false, message: vaccineDoseHashes })
+            } else {
+                res.json({ success: true, message: vaccineDoseHashes })
+            }
+        });
     });
 
     app.get('/api/vaccinedose/getAll', async (req, res) => {
         model.VaccineDoseModel.find(
             { MedicalUnitHash: process.env.MINISTRY_OF_HEALTH_ADDRESS },
-        (err, result) => {
-            if (err) {
-                res.json({ success: false, message: err });
-            } else {
-                const filteredResult = result.map(x => {
-                    return {
-                        doseId: x.DoseId,
-                        lotNo: x.LotNo,
-                        vaccineName: x.VaccineName,
-                        expiredDate: x.ExpiredDate,
-                        medicalUnitHash: x.MedicalUnitHash,
-                        hash: x.Hash
-                    }
-                });
-                res.json({ success: true, message: filteredResult });
-            }
-        });
+            (err, result) => {
+                if (err) {
+                    res.json({ success: false, message: err });
+                } else {
+                    const filteredResult = result.map(x => {
+                        return {
+                            doseId: x.DoseId,
+                            lotNo: x.LotNo,
+                            vaccineName: x.VaccineName,
+                            expiredDate: x.ExpiredDate,
+                            medicalUnitHash: x.MedicalUnitHash,
+                            hash: x.Hash
+                        }
+                    });
+                    res.json({ success: true, message: filteredResult });
+                }
+            });
     });
 }
 
