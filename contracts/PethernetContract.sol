@@ -8,23 +8,19 @@ contract PethernetContract {
     string[] public medicalUnitsList;
     string[] public vaccineDosesList;
     string[] public certificatesList;
-    string[] public injectorsList;
-
+    
     // Medical Unit hash => Medical Unit account address
     mapping (string => address) medicalUnits;
     // Vaccine Dose hash => address of owner (Medical Unit or by default Ministry of Health)
     mapping (string => address) vaccineDoses;
     // Certificate hash => Medical Unit address account
     mapping (string => Certificate) certificates;
-    // Injector hash => existed?
-    mapping (string => bool) injectors;
 
     /** Event */
     event MedicalUnitAddedEvent(string _medicalUnitHash, address _medicalUnitAddr);
     event VaccinDoseAddedEvent(string _vaccineDoseHash);
-    event InjectorAddedEvent(string _injectorHash);
     event DistributedVaccinDoseAddedEvent(string _vaccineDoseHash, string _medicalUnitHash);
-    event IssuedCertEvent(string _certificateHash, string _injectorHash);
+    event IssuedCertEvent(string _certificateHash, string _patientHash);
 
     modifier ministryOfHealthRestricted() {
         require(
@@ -36,7 +32,7 @@ contract PethernetContract {
 
     struct Certificate {
         address issuer; // Medical unit address
-        string injector;
+        string patient;
         string vaccineDose;
     }
 
@@ -63,43 +59,31 @@ contract PethernetContract {
         emit VaccinDoseAddedEvent(_vaccineDoseHash);
     }
 
-    function distributeVaccineDose(string memory _vaccineDoseHash, string memory _medicalUnitHash) public ministryOfHealthRestricted {
+    function distributeVaccineDoses(string memory _medicalUnitHash, uint _total, string[] memory _vaccineDoseHashes) public ministryOfHealthRestricted {
         require(
             medicalUnits[_medicalUnitHash] != address(0),
             "Medical unit is not existed."
         );
-        require(
-            vaccineDoses[_vaccineDoseHash] == ministryOfHealthAddr,
-            "Vaccine dose is unexisted or used."
-        );
 
-        vaccineDoses[_vaccineDoseHash] = medicalUnits[_medicalUnitHash];
-        emit DistributedVaccinDoseAddedEvent(_vaccineDoseHash, _medicalUnitHash);
-    }
+        for (uint i = 0; i < _total; i++) {
+            require(
+                vaccineDoses[_vaccineDoseHashes[i]] == ministryOfHealthAddr,
+                "Vaccine dose is unexisted or used."
+            );
 
-    function addInjector(string memory _injectorHash) public {
-        require(
-            injectors[_injectorHash] == false,
-            "Injector is already existed"
-        );
-
-        injectorsList.push(_injectorHash);
-        injectors[_injectorHash] = true;
-        emit InjectorAddedEvent(_injectorHash);
+            vaccineDoses[_vaccineDoseHashes[i]] = medicalUnits[_medicalUnitHash];
+            emit DistributedVaccinDoseAddedEvent(_vaccineDoseHashes[i], _medicalUnitHash);
+        }
     }
 
     function issueCertificate(
         string memory _medicalUnitHash,
-        string memory _injectorHash,
+        string memory _patientHash,
         string memory _vaccineDoseHash,
         string memory _certificateHash) public {
         require(
             medicalUnits[_medicalUnitHash] == msg.sender,
             "Medical unit is not matched."
-        );
-        require(
-            injectors[_injectorHash] == true,
-            "Injector is not existed."
         );
         require(
             vaccineDoses[_vaccineDoseHash] == msg.sender,
@@ -111,39 +95,27 @@ contract PethernetContract {
         );
         
         certificatesList.push(_certificateHash);
-        certificates[_certificateHash] = Certificate(msg.sender, _injectorHash, _vaccineDoseHash);
-        emit IssuedCertEvent(_certificateHash, _injectorHash);
+        certificates[_certificateHash] = Certificate(msg.sender, _patientHash, _vaccineDoseHash);
+        emit IssuedCertEvent(_certificateHash, _patientHash);
     }
 
-    function checkInjector(string memory _injectorHash) public view returns(bool isExisted) {
-        isExisted = injectors[_injectorHash];
+    function checkVaccineDose(string memory _vaccineDoseHash) public view returns(address _owner) {
+        return vaccineDoses[_vaccineDoseHash];
     }
 
-    function checkCertificate(string memory _certificateHash) public view returns(bool isExisted) {
-        isExisted = certificates[_certificateHash].issuer != address(0);
+    function checkMedicalUnit(string memory _medicalUnitHash) public view returns(address _owner) {
+        return medicalUnits[_medicalUnitHash];
     }
 
-    function checkVaccineDose(string memory _vaccineDoseHash) public view returns(bool isExisted) {
-        isExisted = vaccineDoses[_vaccineDoseHash] != address(0);
+    function checkCertificate(string memory _certificateHash) public view returns (Certificate memory) {
+        return certificates[_certificateHash];
     }
-
-    function checkMedicalUnit(string memory _medicalUnitHash) public view returns(bool isExisted) {
-        isExisted = medicalUnits[_medicalUnitHash] != address(0);
-    }
-
+    
     function vaccineDosesListGetter() public view returns (string[] memory) {
         return vaccineDosesList;
     }
 
     function medicalUnitsListGetter() public view returns (string[] memory) {
         return medicalUnitsList;
-    }
-
-    function certificatesListGetter() public view returns (string[] memory) {
-        return certificatesList;
-    }
-
-    function injectorsListGetter() public view returns (string[] memory) {
-        return injectorsList;
     }
 }
