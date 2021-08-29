@@ -131,23 +131,6 @@ const register = (app) => {
                 if (err) {
                     res.json({ success: false, message: err });
                 } else {
-                    const pethernetContract = new web3.eth.Contract(PethernetContractMeta.abi, process.env.PETHERNET_CONTRACT_ADDRESS);
-
-                    try {
-                        pethernetContract.methods.addMedicalUnit(updatedMedicalUnit.Hash, updatedMedicalUnit.AccountAddress).send(
-                            {
-                                from: process.env.PETHERNET_SYSTEM_ADDRESS,
-                                gas: 150000,
-                            })
-                            .on('receipt', function (x) {
-                                console.log(x);
-                            });
-                    } catch (err) {
-                        res.json({ success: false, message: err });
-                        console.log(err);
-                        return;
-                    };
-
                     const filteredResult = {
                         medCode: updatedMedicalUnit.MedCode,
                         medName: updatedMedicalUnit.MedName,

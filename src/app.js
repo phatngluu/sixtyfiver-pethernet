@@ -27,7 +27,11 @@ app.listen( port, () => {
     console.log( `server started at http://localhost:${ port }` );
 } );
 
-mongoose.connect(process.env.DB_CONNECTION_STRING, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
+mongoose.connect(process.env.DB_CONNECTION_STRING, { 
+    useUnifiedTopology: true, 
+    useNewUrlParser: true,
+    useCreateIndex: true
+}, (err) => {
     if (err) {
         console.log(err);
     } else {
