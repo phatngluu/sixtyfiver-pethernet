@@ -1,6 +1,7 @@
-const { assert } = require("chai");
-
 require("dotenv").config();
+
+// intentionally leave here, uncomment while writing unit test, it will give code suggestion
+// const { assert } = require("chai");
 
 const PethernetContract = artifacts.require("PethernetContract");
 
