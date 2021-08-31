@@ -40,5 +40,5 @@ jobs:
         run: npm run build --if-present
       - name: Test - Smart Contract
         run: |
-          ganache-cli -q
+          ganache-cli &
           truffle test
