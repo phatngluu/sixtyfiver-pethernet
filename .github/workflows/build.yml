@@ -33,11 +33,12 @@ jobs:
           # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
           architecture: x64
       - name: Npm Install
-        run: npm install
+        run: |
+          npm install
+          npm install -g ganache-cli truffle
       - name: Npm Build
         run: npm run build --if-present
       - name: Test - Smart Contract
-        run: npm install -g ganache-cli \
-          & ganache-cli \
-          & truffle test
-        
+        run: |
+          ganache-cli -q
+          truffle test
