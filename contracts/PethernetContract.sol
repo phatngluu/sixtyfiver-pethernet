@@ -60,13 +60,18 @@ contract PethernetContract {
         emit VaccinDoseAddedEvent(_vaccineDoseHash);
     }
 
-    function distributeVaccineDoses(string memory _medicalUnitHash, uint _total, string[] memory _vaccineDoseHashes) public ministryOfHealthRestricted {
+    function distributeVaccineDoses(string memory _medicalUnitHash, string[] memory _vaccineDoseHashes) public ministryOfHealthRestricted {
         require(
             medicalUnits[_medicalUnitHash] != address(0),
             "Medical unit is not existed."
         );
 
-        for (uint i = 0; i < _total; i++) {
+        require(
+            _vaccineDoseHashes.length > 0,
+            "Number of vaccine doses should be at least 1."
+        );
+
+        for (uint i = 0; i < _vaccineDoseHashes.length; i++) {
             require(
                 vaccineDoses[_vaccineDoseHashes[i]] == ministryOfHealthAddr,
                 "Vaccine dose is unexisted or used."
