@@ -35,10 +35,10 @@ jobs:
       - name: Npm Install
         run: |
           npm install
-          npm install -g ganache-cli truffle
+          npm install -g ganache-cli truffle chai
       - name: Npm Build
         run: npm run build --if-present
       - name: Test - Smart Contract
         run: |
-          ganache-cli &
+          ganache-cli -q &
           truffle test
